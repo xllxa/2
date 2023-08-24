@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="https://cdn.bootcss.com/d3/3.2.1/d3.js"></script>
+</head>
+<style>
+    a{
+      text-decoration: none;
+    }
+    div.header{
+      left: 0%;
+      top: 0%; 
+      margin-top: 0%;
+      margin-left: 0%;
+      width: 30%;
+      height: 154px;
+    }
+    .user-btn {
+      position:absolute;
+      left: 800px;
+      top:80px;
+      width: 50px;
+      height: 40px;
+      border: none;
+      border-radius: 5px;
+      background: rgb(195, 139, 139);
+      vertical-align: left;
+      outline: none;
+      color: rgb(255, 255, 255);
+      font-size: 20px;
+    }
+    .nav{
+      position: absolute;
+      left: 40px;
+      top: 100px;
+    }
+    .nav ul li{
+      position: relative;
+      display: inline-block;
+      padding:0px 30px;
+    }
+    .nav ul li a{
+      background-color: rgb(152, 152, 152);
+      border-radius: 8px;
+      color: #fff;
+      display: inline-block;
+      padding: 0px 15px;
+    }
+    .nav ul li.current a{
+      background-color: #fdc33c;
+      color: #fd6059;
+    }
+    .nav ul li:hover a{
+      box-shadow: 1px 1px 4px #000;
+      color: #888;
+    }
+</style>
+<body>
+	<div class="header" style="font-size: 20px">
+	  </div>
+	  <div class="nav" style="margin: 0px auto; width:1200px; background-color: rgb(255, 255, 255); font-size: 16px;">
+		<ul>
+		  <li><a href="bar.html">不同级别人才流失数量</a></li>
+		  <li><a href="contrast.html">文献自引率数量占比</a></li>
+		  <li><a href="index.html">不同地区人才流失数量</a></li>
+		  <li><a href="world_heatmap.html">学科分类图</a></li>
+		</ul>
+	  </div>
+	<svg class = "f"></svg>
+	<svg class = "l"></svg>
+  <script type="text/javascript">
+    var width = 600;      
+    var height = 600;     
+ 
+    var svg = d3.select('body')               
+            	.selectAll(".f")              
+            	.attr('width', width)					
+            	.attr('height', height);
+
+
+    var dataset = [["低", 18201],["较低" ,8213], ["中等",2142], ["较高",1247], ["高",101]];
+	//[["0%-20%", 19201],["20%-40%" ,8213], ["40%-60%",2142], ["60%-80%",547], ["80%-100",101], [14304, 6979, 1663, 377, 59]] 
+ 
+    var pie = d3.layout.pie()
+    		.value(function (d) { return d[1]; });
+    var piedata = pie(dataset);
+    console.log(piedata);
+ 
+    var outerRadius = width / 3;
+    var innerRadius = 1;
+ 
+    var arc = d3.svg.arc()
+    	.innerRadius(innerRadius)
+    	.outerRadius(outerRadius);
+    var color = d3.scale.category20();
+ 
+    var arcs = svg.selectAll('g')
+    							.data(piedata)
+    							.enter()
+    							.append('g')
+    							.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')');
+ 
+    arcs.append('path')
+    		.attr('fill', function(d,i) {
+    		  return color(i);         
+    		})
+    		.attr('d', function(d) {
+    		  return arc(d);           
+    		});
+ 
+    arcs.append('text')
+    		.attr('transform', function(d) {
+    		  var x = arc.centroid(d)[0] * 1.6;      
+    		  var y = arc.centroid(d)[1] * 1.4;      
+    		  return 'translate(' + x + ',' + y + ')';
+    		})
+    		.attr('text-anchor', 'middle')
+    		.text(function(d) {
+    	
+    		  var percent = Number(d.value) / d3.sum(dataset, function(d) { return d[1]; }) * 100;
+    	
+    		  return percent.toFixed(1) + '%';
+    		});
+arcs.append('text')
+    .text("非流失人才自引率数量占比")
+   
+    arcs.append('line')
+    		.attr('stroke', 'black')
+    		.attr('x1', function(d) { return arc.centroid(d)[0] * 2; })
+    		.attr('y1', function(d) { return arc.centroid(d)[1] * 2; })
+    		.attr('x2', function(d) { return arc.centroid(d)[0] * 2.2; })
+    		.attr('y2', function(d) { return arc.centroid(d)[1] * 2.2; });
+ 
+ 
+    arcs.append('text')
+    		.attr('transform', function(d) {
+    		  var x = arc.centroid(d)[0] * 2.5;
+    		  var y = arc.centroid(d)[1] * 2.5;
+    		  return 'translate(' + x + ',' + y + ')';
+    		})
+    		.attr('text-anchor', 'middle')
+    		.text(function(d) {
+    		  return d.data[0];
+    		});
+
+			var svg = d3.select('body')              
+            		.selectAll('.l')                
+            		.attr('width', width)					
+            		.attr('height', height);      
+ 
+   
+    var dataset = [["低", 14304], ["较低",6979], ["中等",1563],["较高",377],["高",159]]
+ 
+  
+    var pie = d3.layout.pie()
+    		.value(function (d) { return d[1]; });
+    var piedata = pie(dataset);
+    console.log(piedata);
+ 
+  
+    var outerRadius = width / 3;
+    var innerRadius = 1;
+ 
+  
+    var arc = d3.svg.arc()
+    								.innerRadius(innerRadius)
+    								.outerRadius(outerRadius);
+    var color = d3.scale.category20();
+ 
+   
+    var arcs = svg.selectAll('g')
+    							.data(piedata)
+    							.enter()
+    							.append('g')
+    							.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')');
+ 
+ 
+    arcs.append('path')
+    		.attr('fill', function(d,i) {
+    		  return color(i);      
+    		})
+    		.attr('d', function(d) {
+    		  return arc(d);         
+    		});
+ 
+ 
+   
+    arcs.append('text')
+    		.attr('transform', function(d) {
+    		  var x = arc.centroid(d)[0] * 1.6;     
+    		  var y = arc.centroid(d)[1] * 1.4;     
+    		  return 'translate(' + x + ',' + y + ')';
+    		})
+    		.attr('text-anchor', 'middle')
+    		.text(function(d) {
+    		  var percent = Number(d.value) / d3.sum(dataset, function(d) { return d[1]; }) * 100;
+    		  return percent.toFixed(1) + '%';
+    		});
+ 
+
+    arcs.append('line')
+    		.attr('stroke', 'black')
+    		.attr('x1', function(d) { return arc.centroid(d)[0] * 2; })
+    		.attr('y1', function(d) { return arc.centroid(d)[1] * 2; })
+    		.attr('x2', function(d) { return arc.centroid(d)[0] * 2.2; })
+    		.attr('y2', function(d) { return arc.centroid(d)[1] * 2.2; });
+ 
+
+    arcs.append('text')
+    		.attr('transform', function(d) {
+    		  var x = arc.centroid(d)[0] * 2.5;
+    		  var y = arc.centroid(d)[1] * 2.5;
+    		  return 'translate(' + x + ',' + y + ')';
+    		})
+    		.attr('text-anchor', 'middle')
+    		.text(function(d) {
+    		  return d.data[0];
+    		});
+
+	arcs.append('text')
+    .text("流失人才自引率数量占比")
+  </script>
+</body>
+</html>

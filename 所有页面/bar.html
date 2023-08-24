@@ -1,0 +1,82 @@
+
+<!doctype html>
+<html>
+<head>
+    <title>堆叠柱形图</title>
+    <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+</head> 
+<style>
+    a{
+      text-decoration: none;
+    }
+div.header{
+    left: 0%;
+    top: 0%; 
+    margin-top: 0%;
+    margin-left: 0%;
+    width: 30%;
+    height: 154px;
+  }
+  .user-btn {
+    position:absolute;
+    left: 800px;
+    top:80px;
+    width: 50px;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    background: rgb(195, 139, 139);
+    vertical-align: left;
+    outline: none;
+    color: rgb(255, 255, 255);
+    font-size: 20px;
+  }
+  .nav{
+    position: absolute;
+    left: 40px;
+    top: 100px;
+  }
+  .nav ul li{
+    position: relative;
+    display: inline-block;
+    padding:0px 30px;
+  }
+  .nav ul li a{
+    background-color: rgb(152, 152, 152);
+    border-radius: 8px;
+    color: #fff;
+    display: inline-block;
+    padding: 0px 15px;
+  }
+  .nav ul li.current a{
+    background-color: #fdc33c;
+    color: #fd6059;
+  }
+  .nav ul li:hover a{
+    box-shadow: 1px 1px 4px #000;
+    color: #888;
+  }
+</style>
+<body>
+    <div class="nav" style="margin: 0px auto; width:1200px; background-color: rgb(255, 255, 255); font-size: 16px;">
+		<ul>
+		  <li><a href="bar.html">不同级别人才流失数量</a></li>
+		  <li><a href="contrast.html">文献自引率数量占比</a></li>
+		  <li><a href="index.html">不同地区人才流失数量</a></li>
+		  <li><a href="world_heatmap.html">学科分类图</a></li>
+		</ul>
+	<div style="text-align: center;">
+        <h1>不同级别人才数量和流失情况</h1>
+            <h5>
+                人才级别按学者排名划分<br>
+                一级人才排名10万以内<br>
+                二级人才排名10万 -20万，三级人才排名20万 -50万<br>
+                后续排名每50万划分一级
+            </h5>
+        <div id="container-single"></div>
+        <div id="container-more"></div>
+        <div id="container-stack-up"></div>
+    </div>
+	<script src="histogram.js"></script> 
+</body> 
+</html>

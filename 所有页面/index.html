@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>bubble-chart</title>
+  <style>
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: Helvetica, Calibri, Roboto, Open Sans, sans-serif;
+      -webkit-backface-visibility: hidden;
+    }
+
+    * {
+      box-sizing: inherit;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    svg {
+      margin: auto;
+      display: block;
+    }
+
+    .legend-size circle {
+      fill: rgb(31, 119, 180);
+    }
+
+    .tooltip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      min-width: 150px;
+      z-index: 999;
+      background-color: white;
+      box-shadow: 1px 1px 1px #ccc, -1px -1px 1px #ccc;
+      font-size: 14px;
+      display: none;
+    }
+
+    p {
+      margin: 0;
+      margin: 5px;
+    }
+    h3{
+      padding: 15px 0;
+      margin: 0;
+      text-align: center;
+      background-color: rgb(238, 238, 238);
+    }
+    h3 span{
+      font-size: 14px;
+      color: #999;
+    }
+
+    a{
+      text-decoration: none;
+    }
+    div.header{
+      left: 0%;
+      top: 0%; 
+      margin-top: 0%;
+      margin-left: 0%;
+      width: 30%;
+      height: 154px;
+    }
+    .user-btn {
+      position:absolute;
+      left: 800px;
+      top:80px;
+      width: 50px;
+      height: 40px;
+      border: none;
+      border-radius: 5px;
+      background: rgb(195, 139, 139);
+      vertical-align: left;
+      outline: none;
+      color: rgb(255, 255, 255);
+      font-size: 20px;
+    }
+    .nav{
+      position: absolute;
+      left: 40px;
+      top: 100px;
+    }
+    .nav ul li{
+      position: relative;
+      display: inline-block;
+      padding:0px 30px;
+    }
+    .nav ul li a{
+      background-color: rgb(152, 152, 152);
+      border-radius: 8px;
+      color: #fff;
+      display: inline-block;
+      padding: 0px 15px;
+    }
+    .nav ul li.current a{
+      background-color: #fdc33c;
+      color: #fd6059;
+    }
+    .nav ul li:hover a{
+      box-shadow: 1px 1px 4px #000;
+      color: #888;
+    }
+</style>
+</head>
+
+<body>
+  <div class="nav" style="margin: 0px auto; width:1200px; background-color: rgb(255, 255, 255); font-size: 16px;">
+		<ul>
+		  <li><a href="bar.html">不同级别人才流失数量</a></li>
+		  <li><a href="contrast.html">文献自引率数量占比</a></li>
+		  <li><a href="index.html">不同地区人才流失数量</a></li>
+		  <li><a href="world_heatmap.html">学科分类图</a></li>
+		</ul>
+	  </div>
+  <h3>学科分类图 <br> <span>按照数量大小分类</span></h3>
+  <svg width="100%" height="940" font-family="sans-serif" font-size="10" text-anchor="middle"></svg>
+
+  <div class="tooltip">
+    <p><span>分类名：</span><span id="name"></span></p>
+    <p><span>分类数量：</span><span id="num"></span></p>
+  </div>
+  <script src="js/d3.min.js"></script>
+  <script src="js/d3-legend.min.js"></script>
+
+  <script>
+
+    const tooltip = document.querySelector(".tooltip")
+    const nameBox = document.querySelector("#name")
+    const numBox = document.querySelector("#num")
+    const loadData = async () => {
+      const dataCsv = await d3.csv("./js/datas.csv")
+      let newData = []
+      let groupData = []
+
+
+      newData = dataCsv.reduce((acc, curr) => {
+        let key = curr['sm-subfield-1'];
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(curr);
+        return acc;
+      }, {});
+
+      Object.keys(newData).forEach(key => {
+        groupData.push({
+          name: key,
+          value: newData[key].length
+        })
+      })
+
+      render(groupData)
+    }
+
+
+
+    loadData()
+
+
+  </script>
+  <script>
+    var color = [
+      "#876ACE",
+      "#A3EE5E",
+      "#3C8746",
+      "#5ABF9C",
+      "#D92029",
+      "#81139D",
+      "#CBE980",
+      "#8183DD",
+      "#A945AA",
+      "#49B3FA",
+      "#CB3AF2",
+      "#AA976E",
+      "#CEC26D",
+      "#5AE036",
+      "#80B840",
+      "#1559B3",
+      "#E525D3",
+      "#995489",
+      "#7DB91E",
+      "#ADEC22",
+      "#9C1EB1",
+      "#317E24",
+      "#1C5653",
+      "#C98773",
+      "#A30A8D",
+      "#29359C",
+      "#65E4A5",
+      "#19E5A2",
+      "#D53E8D",
+      "#ED8D43",
+      "#374D49",
+      "#62A869",
+      "#24D73A",
+      "#6D7629",
+      "#799592",
+      "#888DEE",
+      "#ED63C2",
+      "#EE117B",
+      "#93A746",
+      "#171C7B",
+      "#398759",
+      "#8055F9",
+      "#AEFE6D",
+      "#4105C3",
+      "#12DC19",
+      "#D06696",
+      "#BE22A6",
+      "#A70767",
+      "#412A82",
+      "#612953",
+      "#28D294",
+      "#E8AA4B",
+      "#844BC5",
+      "#BB12BE",
+      "#389AC5",
+      "#16BC14",
+      "#C872B4",
+      "#86273D",
+      "#0E6549",
+      "#935B54",
+      "#249E7C",
+      "#174E95",
+      "#8B15DE",
+      "#0CDC81",
+      "#8D8FE9",
+      "#ED9C28",
+      "#2B770D",
+      "#6E34C4",
+      "#272DE9",
+      "#D80CB8",
+      "#EDBB74",
+      "#F782E4",
+      "#4CE2F7",
+      "#11DEF4",
+      "#902B9D",
+      "#C8DA36",
+      "#D4C4BD",
+      "#85468D",
+      "#2198A5",
+      "#CC694E",
+      "#963C6F",
+      "#269219",
+      "#4E404A",
+      "#7DD39B",
+      "#8C195D",
+      "#DB9BE2",
+      "#422C85",
+      "#714E61",
+      "#955287",
+      "#BD44EA",
+      "#B32C74",
+      "#D15A4D",
+      "#26D9AC",
+      "#DC564B",
+      "#61BE3E",
+      "#5ECEA5",
+      "#D45D62",
+      "#A1B662",
+      "#1D9CDC",
+      "#3D49C9",
+      "#861FE9",
+      "#3876A9",
+      "#ABE19E",
+      "#7B1DE3",
+      "#E159E6",
+      "#18CE56",
+      "#248695",
+      "#927C38",
+      "#76518A",
+      "#F1BD6B",
+      "#53714D",
+      "#B9C26E",
+      "#B3D92D",
+      "#4DEEA0",
+      "#566BAF",
+      "#E60C85",
+      "#4ADE39",
+      "#39F0B0",
+      "#BAC576",
+      "#C4533E",
+      "#E4394A",
+      "#A9D672",
+      "#DAE63E",
+      "#CBB2C5",
+      "#8A262C",
+      "#2537DD",
+      "#5299A8",
+      "#51226A",
+      "#C6A7AE",
+      "#5AB1D0",
+      "#336E65",
+      "#A74454",
+      "#FE289F",
+      "#A3B8BC",
+      "#559662",
+      "#7650B6",
+      "#51BED3",
+      "#7EE222",
+      "#8CBDE9",
+      "#2784BC",
+      "#CE8E3E",
+      "#310F41",
+      "#782329",
+      "#344184",
+      "#377869",
+      "#9D9575",
+      "#5E175E",
+      "#F6E16A",
+      "#0853AF",
+      "#136246",
+      "#A3DDC8",
+      "#559E04",
+      "#D69C3A",
+      "#4F7A6F",
+      "#9EB5AB",
+      "#83D572",
+      "#6161CA",
+      "#56B839",
+      "#14AB26",
+      "#0B719B",
+      "#FA5964",
+      "#C8633A",
+      "#7ED5C1",
+      "#1AF576",
+      "#201296",
+      "#78D65A",
+      "#E9799E",
+      "#D89346",
+      "#3DBC98",
+      "#7FD692",
+      "#42F312",
+      "#651CCC",
+      "#74EC54",
+      "#48B58E",
+      "#AB5130",
+      "#F3782F",
+      "#522E11",
+      "#66EE19",
+      "#F5AA3C",
+      "#91259D",
+      "#E19DBD",
+      "#EB4726",
+      "#52298B",
+      "#7731F2",
+      "#71AEBE",
+      "#D614E5",
+      "#8DB251",
+      "#8CD42F",
+      "#62B477",
+      "#6E5E7B",
+      "#8A0A08",
+      "#12E44D",
+      "#DD8B9C",
+      "#AE3CA2",
+      "#4186C6",
+      "#0072B8",
+      "#30224E",
+      "#7215B9",
+      "#778D35",
+      "#7CD142",
+      "#49417A",
+      "#9BF38F",
+      "#3C7815",
+      "#5CBF54",
+      "#BEB37C",
+      "#3E3F1A",
+      "#5345D6",
+      "#3D2E1E",
+      "#DFAA1F",
+      "#4DC343",
+      "#E56C89",
+      "#8940C4",
+      "#6D4E94",
+      "#D1F2BA",
+      "#947137",
+      "#2B940D",
+      "#6C5DCB",
+      "#C496DD",
+      "#84CEDB",
+      "#DBF85D",
+      "#4CE30B",
+      "#106DDF",
+      "#8B3036",
+      "#2C54D7",
+      "#340C5C",
+      "#06D273",
+      "#192B8C",
+      "#1B9948",
+      "#70E7FA",
+      "#50B74E",
+      "#B4D73E",
+      "#62B32E",
+      "#A11F73",
+      "#9A60A8",
+      "#A98FAF",
+      "#700FDE",
+      "#874727",
+      "#A6BE15",
+      "#73CD23",
+      "#EE788A",
+      "#A0C4EC",
+      "#C6720D",
+      "#D623D8",
+      "#AC30DB",
+      "#B28DBB",
+      "#AE3161",
+      "#9CF746",
+      "#D44994",
+      "#BBB9E6",
+      "#C2B5E9",
+      "#A5EFA3",
+      "#8248F1",
+      "#FB78F8",
+      "#DFB62E",
+      "#093918",
+      "#75A9D4",
+      "#0ABB2D",
+      "#6C8C9D",
+      "#BA1487",
+      "#0B847E",
+      "#18F63A",
+      "#E3185C",
+      "#4F0CF4",
+      "#EC9E77",
+      "#C1E264",
+      "#D13728",
+      "#A41163",
+      "#1FE14D",
+      "#5294E8",
+      "#16C7AB",
+      "#732D15",
+      "#2763CA",
+      "#0693DE",
+      "#67E78D",
+      "#E1853A",
+      "#D0228D",
+      "#565ECC",
+      "#3080C8",
+      "#391468",
+      "#94C61E",
+      "#A2C021",
+      "#CE9171",
+      "#E8532B",
+      "#353A55",
+      "#B0B75D",
+      "#668985",
+      "#845C48",
+      "#3E84E9",
+      "#799BA7",
+      "#83E08A",
+      "#E2AAD7",
+      "#BABBC4",
+      "#704773",
+      "#DECA48",
+      "#1141AC",
+      "#AE4A6D",
+      "#A3A899",
+      "#B8632D",
+      "#CCC070",
+      "#35636E"
+    ]
+
+    function render(data) {
+
+      if (!data.length) return
+      const nodeG = d3.select('svg').append('g'); // 节点集合g标签
+      const width = document.body.clientWidth; // 画布宽
+      const svg = d3.select('svg').style('background-color', '#eee');
+      const height = +svg.attr('height'); // 画布高
+      const centerX = width * 0.5; // 画布中心坐标x
+      const centerY = height * 0.5; // 画布中心坐标y
+      const strength = 0.05; // 碰撞强度
+      const scaleColor = d3.scaleOrdinal().domain(data.map(_ => _.name)).range(color);
+      console.log(scaleColor(), '============')
+      const pack = d3.pack().size([width, height]).padding(1.5); // 气泡图layout
+      const forceCollide = d3.forceCollide((d) => d.r + 1); // 碰撞力
+
+      const simulation = d3 // 力导向模型仿真
+        .forceSimulation()
+        .force('charge', d3.forceManyBody()) // 节点间电荷力
+        .force('collide', forceCollide) // 碰撞检测
+        .force('center', d3.forceCenter(centerX, centerY)) // 向心力
+        .force('x', d3.forceX(centerX).strength(strength)) // x方向定位力
+        .force('y', d3.forceY(centerY).strength(strength)); // y方向定位力
+
+      const nodes = pack(
+        d3
+          .hierarchy({ children: data }) // 节点集合预数据
+          .sum((d) => d.value)
+      )
+        .leaves()
+        .map((node) => {
+          const data = node.data;
+          return {
+            x: centerX + (node.x - centerX) * 3,
+            y: centerY + (node.y - centerY) * 3,
+            r: 0,
+            radius: node.r,
+            id: data.cat + '.' + data.name.replace(/\s/g, '-'),
+            cat: data.cat,
+            name: data.name,
+            value: data.value,
+          };
+        });
+
+      simulation.nodes(nodes).on('tick', ticked); // 按指定的迭代次数手动执行仿真
+
+      const node = nodeG // 节点项g标签
+        .selectAll('.node')
+        .data(nodes)
+        .enter()
+        .append('g')
+        .attr('class', 'node');
+
+      node.on('mouseenter', function (data) {
+        tooltip.style.display = 'block'
+        nameBox.innerHTML = data.name
+        numBox.innerHTML = data.value
+        tooltip.style.left = data.x + 'px'
+        tooltip.style.top = data.y + 'px'
+      })
+      node.on('mouseout', function (data) {
+        tooltip.style.display = 'none'
+      })
+
+      node
+        .append('circle') // 生成节点圆形填充
+        .attr('id', (d) => d.id)
+        .attr('r', 0)
+        .style('fill', (d) => scaleColor(d.name))
+        .transition()
+        .duration(1000)
+        .ease(d3.easeElasticOut)
+        .tween('circleIn', (d) => {
+          let i = d3.interpolateNumber(0, d.radius);
+          return (t) => {
+            d.r = i(t);
+            simulation.force('collide', forceCollide); // 碰撞检测
+          };
+        });
+
+      node // 节点项填充 image标签
+
+        .append('g')
+        .attr('x', (d) => -d.radius * 0.7)
+        .attr('y', (d) => -d.radius * 0.7)
+        .attr('height', (d) => d.radius * 2 * 0.7)
+        .attr('width', (d) => d.radius * 2 * 0.7)
+        .text(function (d) {
+
+        })
+
+
+
+
+      const zoom = d3
+        .zoom()
+        .scaleExtent([0.01, 100]) // 缩放范围
+        .on('zoom', () => {
+          // 监听画布zoom事件
+          const transform = d3.event.transform; // 获取当前缩放数据
+          nodeG.attr(
+            // 节点集合父元素修改transform属性
+            'transform',
+            (d) =>
+              `translate(${transform.x},${transform.y})scale(${transform.k})`
+          );
+        });
+
+      svg.call(zoom).on('dblclick.zoom', null); // 当前svg绑定zoom事件
+
+      node.call(
+        // 节点项g标签 绑定拖拽事件
+        d3
+          .drag()
+          // 拖拽起始
+          .on('start', (d) => {
+            // d3.event.active表示当前拖拽节点的数量 === 0 时激活力模拟布局
+            if (!d3.event.active) simulation.alphaTarget(0.2).restart(); // 重新激活仿真进行布局
+            // 节点固定起始位置
+            d.fx = d.x;
+            d.fy = d.y;
+          })
+          // 拖拽过程ing
+          .on('drag', (d) => {
+            // 重置节点在移动过程中的固定位置
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+          })
+          .on('end', (d) => {
+            // 拖拽结束后，当前拖拽节点的数量 === 0 时关闭力模拟布局
+            if (!d3.event.active) simulation.alphaTarget(0);
+            // 释放固定节点，为null节点将不会锁定
+            d.fx = null;
+            d.fy = null;
+          })
+      );
+
+      function ticked() {
+        node
+          .attr('transform', (d) => `translate(${d.x},${d.y})`) // 在一次仿真计算中，修改当前每个节点项的位置偏移
+          .select('circle')
+          .attr('r', (d) => d.r);
+      }
+    }
+  </script>
+</body>
+
+</html>
